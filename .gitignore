@@ -12,6 +12,7 @@ img
 # Misc dev/scripting files
 trash
 trash_in
+5etools (My Test Mirrior) Localhost.bat
 
 # Generated files
 sitemap.xml
@@ -25,3 +26,7 @@ sw-injector.js
 
 # Log files
 *.log
+
+# API Keys
+js/config.js
+env
