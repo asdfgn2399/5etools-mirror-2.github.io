@@ -750,6 +750,8 @@ class NavBar {
 
 		if (options.context) a.oncontextmenu = options.context;
 
+		if (options.id && !document.getElementById(options.id)) a.id = options.id;
+
 		if (options.title) li.setAttribute("title", options.title);
 
 		li.appendChild(a);
