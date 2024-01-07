@@ -263,8 +263,8 @@ class NavBar {
 							});
 						};
 						firebase.auth().signOut().then(() => {
-							signInButton.innerHTML = 'Sign In';
-							signInButton.title = 'Sign in to your account';
+							document.getElementById("signInButton").innerHTML = 'Sign In';
+							document.getElementById("signInButton").title = 'Sign in to your account';
 							localStorage.userUID = 'loggedOut';
 							document.getElementById('navigation').click();
 							if (data != "") {
@@ -938,7 +938,7 @@ class NavBar {
     <input id="popupEmail" type="text" placeholder="e.g. yourname@example.com"><br>
 		<label for="popupPassword">Password:</label><br>
     <input id="popupPassword" type="text" placeholder="e.g. h$kd9I8K4nb-D6r"><br>
-		<button id="signInButton" onclick="NavBar.firebaseSignIn(popupEmail.value, popupPassword.value, ${isCreating})" class="btn bottom-right-button">${btnTxt}</button>`
+		<button onclick="NavBar.firebaseSignIn(popupEmail.value, popupPassword.value, ${isCreating})" class="btn bottom-right-button">${btnTxt}</button>`
  
 	}
 
@@ -946,8 +946,8 @@ class NavBar {
 		if (!creating) {
 			firebase.auth().signInWithEmailAndPassword(email, password).then((userObj) => {
 				if (userObj) {
-					signInButton.innerHTML = 'Log Out';
-					signInButton.title = 'Log out of your account';
+					document.getElementById("signInButton").innerHTML = 'Log Out';
+					document.getElementById("signInButton").title = 'Log out of your account';
 					document.getElementById('navPopup').style.top = '-500px';
 					localStorage.userUID = userObj.user.uid
 					localStorage.UIDtimestamp = Date.now()
@@ -987,8 +987,8 @@ class NavBar {
 		} else {
 			firebase.auth().createUserWithEmailAndPassword(email, password).then((userObj) => {
 				if (userObj) {
-					signInButton.innerHTML = 'Log Out';
-					signInButton.title = 'Log out of your account';
+					document.getElementById("signInButton").innerHTML = 'Log Out';
+					document.getElementById("signInButton").title = 'Log out of your account';
 					document.getElementById('navPopup').style.top = '-500px';
 					localStorage.userUID = userObj.user.uid
 					localStorage.UIDtimestamp = Date.now()
