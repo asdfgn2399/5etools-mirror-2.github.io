@@ -2,7 +2,7 @@
 
 // in deployment, `IS_DEPLOYED = "<version number>";` should be set below.
 globalThis.IS_DEPLOYED = undefined;
-globalThis.VERSION_NUMBER = /* 5ETOOLS_VERSION__OPEN */"1.197.3"/* 5ETOOLS_VERSION__CLOSE */;
+globalThis.VERSION_NUMBER = /* 5ETOOLS_VERSION__OPEN */"1.199.0"/* 5ETOOLS_VERSION__CLOSE */;
 globalThis.DEPLOYED_IMG_ROOT = undefined;
 // for the roll20 script to set
 globalThis.IS_VTT = false;
@@ -300,8 +300,8 @@ globalThis.StrUtil = {
 	// Certain minor words should be left lowercase unless they are the first or last words in the string
 	TITLE_LOWER_WORDS: ["a", "an", "the", "and", "but", "or", "for", "nor", "as", "at", "by", "for", "from", "in", "into", "near", "of", "on", "onto", "to", "with", "over", "von"],
 	// Certain words such as initialisms or acronyms should be left uppercase
-	TITLE_UPPER_WORDS: ["Id", "Tv", "Dm", "Ok", "Npc", "Pc", "Tpk", "Wip", "Dc"],
-	TITLE_UPPER_WORDS_PLURAL: ["Ids", "Tvs", "Dms", "Oks", "Npcs", "Pcs", "Tpks", "Wips", "Dcs"], // (Manually pluralize, to avoid infinite loop)
+	TITLE_UPPER_WORDS: ["Id", "Tv", "Dm", "Ok", "Npc", "Pc", "Tpk", "Wip", "Dc", "D&d"],
+	TITLE_UPPER_WORDS_PLURAL: ["Ids", "Tvs", "Dms", "Oks", "Npcs", "Pcs", "Tpks", "Wips", "Dcs", "D&d"], // (Manually pluralize, to avoid infinite loop)
 
 	IRREGULAR_PLURAL_WORDS: {
 		"cactus": "cacti",
@@ -540,6 +540,16 @@ globalThis.SourceUtil = class {
 		if (typeof BrewUtil2 !== "undefined" && BrewUtil2.hasSourceJson(source)) return SourceUtil.FILTER_GROUP_HOMEBREW;
 		if (SourceUtil.isPartneredSourceWotc(source)) return SourceUtil.FILTER_GROUP_PARTNERED;
 		return SourceUtil.FILTER_GROUP_STANDARD;
+	}
+
+	static getFilterGroupName (group) {
+		switch (group) {
+			case SourceUtil.FILTER_GROUP_NON_STANDARD: return "Other/Prerelease";
+			case SourceUtil.FILTER_GROUP_HOMEBREW: return "Homebrew";
+			case SourceUtil.FILTER_GROUP_PARTNERED: return "Partnered";
+			case SourceUtil.FILTER_GROUP_STANDARD: return null;
+			default: throw new Error(`Unhandled source filter group "${group}"`);
+		}
 	}
 
 	static getAdventureBookSourceHref (source, page) {
@@ -2052,13 +2062,13 @@ globalThis.MiscUtil = {
 };
 
 // EVENT HANDLERS ======================================================================================================
-globalThis.EventUtil = {
-	_mouseX: 0,
-	_mouseY: 0,
-	_isUsingTouch: false,
-	_isSetCssVars: false,
+globalThis.EventUtil = class {
+	static _mouseX = 0;
+	static _mouseY = 0;
+	static _isUsingTouch = false;
+	static _isSetCssVars = false;
 
-	init () {
+	static init () {
 		document.addEventListener("mousemove", evt => {
 			EventUtil._mouseX = evt.clientX;
 			EventUtil._mouseY = evt.clientY;
@@ -2067,46 +2077,50 @@ globalThis.EventUtil = {
 		document.addEventListener("touchstart", () => {
 			EventUtil._isUsingTouch = true;
 		});
-	},
+	}
 
-	_eleDocRoot: null,
-	_onMouseMove_setCssVars () {
+	static _eleDocRoot = null;
+	static _onMouseMove_setCssVars () {
 		if (!EventUtil._isSetCssVars) return;
 
 		EventUtil._eleDocRoot = EventUtil._eleDocRoot || document.querySelector(":root");
 
 		EventUtil._eleDocRoot.style.setProperty("--mouse-position-x", EventUtil._mouseX);
 		EventUtil._eleDocRoot.style.setProperty("--mouse-position-y", EventUtil._mouseY);
-	},
+	}
 
-	getClientX (evt) { return evt.touches && evt.touches.length ? evt.touches[0].clientX : evt.clientX; },
-	getClientY (evt) { return evt.touches && evt.touches.length ? evt.touches[0].clientY : evt.clientY; },
+	/* -------------------------------------------- */
 
-	getOffsetY (evt) {
+	static getClientX (evt) { return evt.touches && evt.touches.length ? evt.touches[0].clientX : evt.clientX; }
+	static getClientY (evt) { return evt.touches && evt.touches.length ? evt.touches[0].clientY : evt.clientY; }
+
+	static getOffsetY (evt) {
 		if (!evt.touches?.length) return evt.offsetY;
 
 		const bounds = evt.target.getBoundingClientRect();
 		return evt.targetTouches[0].clientY - bounds.y;
-	},
+	}
 
-	getMousePos () {
+	static getMousePos () {
 		return {x: EventUtil._mouseX, y: EventUtil._mouseY};
-	},
+	}
 
-	isUsingTouch () { return !!EventUtil._isUsingTouch; },
+	/* -------------------------------------------- */
 
-	isInInput (evt) {
+	static isUsingTouch () { return !!EventUtil._isUsingTouch; }
+
+	static isInInput (evt) {
 		return evt.target.nodeName === "INPUT" || evt.target.nodeName === "TEXTAREA"
 			|| evt.target.getAttribute("contenteditable") === "true";
-	},
+	}
 
-	isCtrlMetaKey (evt) {
+	static isCtrlMetaKey (evt) {
 		return evt.ctrlKey || evt.metaKey;
-	},
+	}
 
-	noModifierKeys (evt) { return !evt.ctrlKey && !evt.altKey && !evt.metaKey; },
+	static noModifierKeys (evt) { return !evt.ctrlKey && !evt.altKey && !evt.metaKey; }
 
-	getKeyIgnoreCapsLock (evt) {
+	static getKeyIgnoreCapsLock (evt) {
 		if (!evt.key) return null;
 		if (evt.key.length !== 1) return evt.key;
 		const isCaps = (evt.originalEvent || evt).getModifierState("CapsLock");
@@ -2116,7 +2130,29 @@ globalThis.EventUtil = {
 		const isLowerCase = asciiCode >= 97 && asciiCode <= 122;
 		if (!isUpperCase && !isLowerCase) return evt.key;
 		return isUpperCase ? evt.key.toLowerCase() : evt.key.toUpperCase();
-	},
+	}
+
+	/* -------------------------------------------- */
+
+	// In order of preference/priority.
+	// Note: `"application/json"`, as e.g. Founrdy's TinyMCE blocks drops which are not plain text.
+	static _MIME_TYPES_DROP_JSON = ["application/json", "text/plain"];
+
+	static getDropJson (evt) {
+		let data;
+		for (const mimeType of EventUtil._MIME_TYPES_DROP_JSON) {
+			if (!evt.dataTransfer.types.includes(mimeType)) continue;
+
+			try {
+				const rawJson = evt.dataTransfer.getData(mimeType);
+				if (!rawJson) return;
+				data = JSON.parse(rawJson);
+			} catch (e) {
+				// Do nothing
+			}
+		}
+		return data;
+	}
 };
 
 if (typeof window !== "undefined") window.addEventListener("load", EventUtil.init);
@@ -3106,17 +3142,6 @@ if (!IS_DEPLOYED && !IS_VTT && typeof window !== "undefined") {
 				const spl = window.location.href.split("/");
 				window.prompt("Copy to clipboard: Ctrl+C, Enter", `https://5etools-mirror-2.github.io/${spl[spl.length - 1]}`);
 			}
-		}
-	});
-
-	// TODO(img) remove this in future
-	window.addEventListener("load", () => {
-		if (window.location?.host === "5etools-mirror-1.github.io") {
-			JqueryUtil.doToast({
-				type: "warning",
-				isAutoHide: false,
-				content: $(`<div>This mirror is no longer being updated/maintained, and will be shut down on March 1st 2024.<br>Please use <a href="https://5etools-mirror-2.github.io/" rel="noopener noreferrer">5etools-mirror-2.github.io</a> instead, and <a href="https://gist.github.com/5etools-mirror-2/40d6d80f40205882d3fa5006fae963a4" rel="noopener noreferrer">migrate your data</a>.</div>`),
-			});
 		}
 	});
 }
@@ -4359,7 +4384,7 @@ globalThis.DataUtil = {
 					modInfo[prop].forEach(sp => (spellcasting[prop] = spellcasting[prop] || []).push(sp));
 				});
 
-				["recharge", "charges", "rest", "daily", "weekly", "yearly"].forEach(prop => {
+				["recharge", "charges", "rest", "daily", "weekly", "monthly", "yearly"].forEach(prop => {
 					if (!modInfo[prop]) return;
 
 					for (let i = 1; i <= 9; ++i) {
@@ -4442,7 +4467,7 @@ globalThis.DataUtil = {
 					spellcasting[prop].filter(it => !modInfo[prop].includes(it));
 				});
 
-				["recharge", "charges", "rest", "daily", "weekly", "yearly"].forEach(prop => {
+				["recharge", "charges", "rest", "daily", "weekly", "monthly", "yearly"].forEach(prop => {
 					if (!modInfo[prop]) return;
 
 					for (let i = 1; i <= 9; ++i) {
@@ -4650,59 +4675,65 @@ globalThis.DataUtil = {
 
 			static _getCleanMathExpression (str) { return str.replace(/[^-+/*0-9.,]+/g, ""); }
 
+			static _WALKER = null;
 			static resolve ({obj, ent, msgPtFailed = null}) {
-				return JSON.parse(
-					JSON.stringify(obj)
-						.replace(/<\$(?<variable>[^$]+)\$>/g, (...m) => {
-							const [mode, detail] = m.last().variable.split("__");
+				DataUtil.generic.variableResolver._WALKER ||= MiscUtil.getWalker();
 
-							switch (mode) {
-								case "name": return ent.name;
-								case "short_name":
-								case "title_short_name": {
-									return Renderer.monster.getShortName(ent, {isTitleCase: mode === "title_short_name"});
+				return DataUtil.generic.variableResolver._WALKER
+					.walk(
+						obj,
+						{
+							string: str => str.replace(/<\$(?<variable>[^$]+)\$>/g, (...m) => {
+								const [mode, detail] = m.last().variable.split("__");
+
+								switch (mode) {
+									case "name": return ent.name;
+									case "short_name":
+									case "title_short_name": {
+										return Renderer.monster.getShortName(ent, {isTitleCase: mode === "title_short_name"});
+									}
+
+									case "dc":
+									case "spell_dc": {
+										if (!Parser.ABIL_ABVS.includes(detail)) throw new Error(`${msgPtFailed ? `${msgPtFailed} ` : ""} Unknown ability score "${detail}"`);
+										return 8 + Parser.getAbilityModNumber(Number(ent[detail])) + Parser.crToPb(ent.cr);
+									}
+
+									case "to_hit": {
+										if (!Parser.ABIL_ABVS.includes(detail)) throw new Error(`${msgPtFailed ? `${msgPtFailed} ` : ""} Unknown ability score "${detail}"`);
+										const total = Parser.crToPb(ent.cr) + Parser.getAbilityModNumber(Number(ent[detail]));
+										return total >= 0 ? `+${total}` : total;
+									}
+
+									case "damage_mod": {
+										if (!Parser.ABIL_ABVS.includes(detail)) throw new Error(`${msgPtFailed ? `${msgPtFailed} ` : ""} Unknown ability score "${detail}"`);
+										const total = Parser.getAbilityModNumber(Number(ent[detail]));
+										return total === 0 ? "" : total > 0 ? ` + ${total}` : ` - ${Math.abs(total)}`;
+									}
+
+									case "damage_avg": {
+										const replaced = detail
+											.replace(/\b(?<abil>str|dex|con|int|wis|cha)\b/gi, (...m) => Parser.getAbilityModNumber(Number(ent[m.last().abil])))
+											.replace(/\bsize_mult\b/g, () => this._getSizeMult(this._getSize({ent})));
+
+										// eslint-disable-next-line no-eval
+										return Math.floor(eval(this._getCleanMathExpression(replaced)));
+									}
+
+									case "size_mult": {
+										const mult = this._getSizeMult(this._getSize({ent}));
+
+										if (!detail) return mult;
+
+										// eslint-disable-next-line no-eval
+										return Math.floor(eval(`${mult} * ${this._getCleanMathExpression(detail)}`));
+									}
+
+									default: return m[0];
 								}
-
-								case "dc":
-								case "spell_dc": {
-									if (!Parser.ABIL_ABVS.includes(detail)) throw new Error(`${msgPtFailed ? `${msgPtFailed} ` : ""} Unknown ability score "${detail}"`);
-									return 8 + Parser.getAbilityModNumber(Number(ent[detail])) + Parser.crToPb(ent.cr);
-								}
-
-								case "to_hit": {
-									if (!Parser.ABIL_ABVS.includes(detail)) throw new Error(`${msgPtFailed ? `${msgPtFailed} ` : ""} Unknown ability score "${detail}"`);
-									const total = Parser.crToPb(ent.cr) + Parser.getAbilityModNumber(Number(ent[detail]));
-									return total >= 0 ? `+${total}` : total;
-								}
-
-								case "damage_mod": {
-									if (!Parser.ABIL_ABVS.includes(detail)) throw new Error(`${msgPtFailed ? `${msgPtFailed} ` : ""} Unknown ability score "${detail}"`);
-									const total = Parser.getAbilityModNumber(Number(ent[detail]));
-									return total === 0 ? "" : total > 0 ? ` + ${total}` : ` - ${Math.abs(total)}`;
-								}
-
-								case "damage_avg": {
-									const replaced = detail
-										.replace(/\b(?<abil>str|dex|con|int|wis|cha)\b/gi, (...m) => Parser.getAbilityModNumber(Number(ent[m.last().abil])))
-										.replace(/\bsize_mult\b/g, () => this._getSizeMult(this._getSize({ent})));
-
-									// eslint-disable-next-line no-eval
-									return Math.floor(eval(this._getCleanMathExpression(replaced)));
-								}
-
-								case "size_mult": {
-									const mult = this._getSizeMult(this._getSize({ent}));
-
-									if (!detail) return mult;
-
-									// eslint-disable-next-line no-eval
-									return Math.floor(eval(`${mult} * ${this._getCleanMathExpression(detail)}`));
-								}
-
-								default: return m[0];
-							}
-						}),
-				);
+							}),
+						},
+					);
 			}
 		},
 
@@ -5940,7 +5971,11 @@ globalThis.RollerUtil = {
 
 	getColRollType (colLabel) {
 		if (typeof colLabel !== "string") return false;
-		colLabel = Renderer.stripTags(colLabel);
+
+		colLabel = colLabel.trim();
+		const mDice = /^{@dice (?<exp>[^}|]+)([^}]+)?}$/.exec(colLabel);
+
+		colLabel = mDice ? mDice.groups.exp : Renderer.stripTags(colLabel);
 
 		if (Renderer.dice.lang.getTree3(colLabel)) return RollerUtil.ROLL_COL_STANDARD;
 
@@ -7567,4 +7602,15 @@ if (!IS_VTT && typeof window !== "undefined") {
 	// 	$(`.cancer__sidebar-rhs-inner--top`).append(`<div class="TEST_RHS_TOP"></div>`)
 	// 	$(`.cancer__sidebar-rhs-inner--bottom`).append(`<div class="TEST_RHS_BOTTOM"></div>`)
 	// });
+
+	// TODO(img) remove this in future
+	window.addEventListener("load", () => {
+		if (window.location?.host !== "5etools-mirror-1.github.io") return;
+
+		JqueryUtil.doToast({
+			type: "warning",
+			isAutoHide: false,
+			content: $(`<div>This mirror is no longer being updated/maintained, and will be shut down on March 1st 2024.<br>Please use <a href="https://5etools-mirror-2.github.io/" rel="noopener noreferrer">5etools-mirror-2.github.io</a> instead, and <a href="https://gist.github.com/5etools-mirror-2/40d6d80f40205882d3fa5006fae963a4" rel="noopener noreferrer">migrate your data</a>.</div>`),
+		});
+	});
 }
