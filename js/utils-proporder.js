@@ -1366,6 +1366,7 @@ PropOrder._ITEM = [
 	"barding",
 	"bolt",
 	"bow",
+	"bulletSling",
 	"club",
 	"crossbow",
 	"dagger",
@@ -1373,6 +1374,7 @@ PropOrder._ITEM = [
 	"focus",
 	"hammer",
 	"mace",
+	"needleBlowgun",
 	"net",
 	"poison",
 	"polearm",
@@ -1432,6 +1434,8 @@ PropOrder._MAGICVARIANT = [
 
 	"requires",
 	"excludes",
+
+	"rarity",
 
 	"ammo",
 

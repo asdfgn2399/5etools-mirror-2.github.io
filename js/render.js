@@ -349,9 +349,13 @@ globalThis.Renderer = function () {
 		if (entry == null) return; // Avoid dying on nully entries
 		if (!textStack) throw new Error("Missing stack!");
 		if (!meta) throw new Error("Missing metadata!");
-		if (entry.type === "section") meta.depth = -1;
 
 		options = options || {};
+
+		// For wrapped entries, simply recurse
+		if (entry.type === "wrapper") return this._recursiveRender(entry.wrapped, textStack, meta, options);
+
+		if (entry.type === "section") meta.depth = -1;
 
 		meta._didRenderPrefix = false;
 		meta._didRenderSuffix = false;
@@ -359,9 +363,6 @@ globalThis.Renderer = function () {
 		if (typeof entry === "object") {
 			// the root entry (e.g. "Rage" in barbarian "classFeatures") is assumed to be of type "entries"
 			const type = entry.type == null || entry.type === "section" ? "entries" : entry.type;
-
-			// For wrapped entries, simply recurse
-			if (type === "wrapper") return this._recursiveRender(entry.wrapped, textStack, meta, options);
 
 			meta._typeStack.push(type);
 
@@ -784,7 +785,7 @@ globalThis.Renderer = function () {
 			? this._getPagePart(entry)
 			: "";
 		const partExpandCollapse = !this._isPartPageExpandCollapseDisabled && !isInlineTitle
-			? `<span class="rd__h-toggle ml-2 clickable no-select" data-rd-h-toggle-button="true" title="Toggle Visibility (CTRL to Toggle All)">[\u2013]</span>`
+			? this._getPtExpandCollapse()
 			: "";
 		const partPageExpandCollapse = !this._isPartPageExpandCollapseDisabled && (pagePart || partExpandCollapse)
 			? `<span class="ve-flex-vh-center">${[pagePart, partExpandCollapse].filter(Boolean).join("")}</span>`
@@ -905,6 +906,10 @@ globalThis.Renderer = function () {
 		}
 	};
 
+	this._getPtExpandCollapse = function () {
+		return `<span class="rd__h-toggle ml-2 clickable no-select" data-rd-h-toggle-button="true" title="Toggle Visibility (CTRL to Toggle All)">[\u2013]</span>`;
+	};
+
 	this._getPtExpandCollapseSpecial = function () {
 		return `<span class="rd__h-toggle ml-2 clickable no-select" data-rd-h-special-toggle-button="true" title="Toggle Visibility (CTRL to Toggle All)">[\u2013]</span>`;
 	};
@@ -917,7 +922,7 @@ globalThis.Renderer = function () {
 		this._handleTrackDepth(entry, 1);
 
 		const pagePart = this._getPagePart(entry, true);
-		const partExpandCollapse = this._getPtExpandCollapseSpecial();
+		const partExpandCollapse = !this._isPartPageExpandCollapseDisabled ? this._getPtExpandCollapseSpecial() : "";
 		const partPageExpandCollapse = `<span class="ve-flex-vh-center">${[pagePart, partExpandCollapse].filter(Boolean).join("")}</span>`;
 
 		if (entry.name != null) {
@@ -950,7 +955,7 @@ globalThis.Renderer = function () {
 		this._handleTrackDepth(entry, 1);
 
 		const pagePart = this._getPagePart(entry, true);
-		const partExpandCollapse = this._getPtExpandCollapseSpecial();
+		const partExpandCollapse = !this._isPartPageExpandCollapseDisabled ? this._getPtExpandCollapseSpecial() : "";
 		const partPageExpandCollapse = `<span class="ve-flex-vh-center">${[pagePart, partExpandCollapse].filter(Boolean).join("")}</span>`;
 
 		if (entry.name != null) {
@@ -981,7 +986,7 @@ globalThis.Renderer = function () {
 		this._handleTrackDepth(entry, 1);
 
 		const pagePart = this._getPagePart(entry, true);
-		const partExpandCollapse = this._getPtExpandCollapseSpecial();
+		const partExpandCollapse = !this._isPartPageExpandCollapseDisabled ? this._getPtExpandCollapseSpecial() : "";
 		const partPageExpandCollapse = `<span class="ve-flex-vh-center">${[pagePart, partExpandCollapse].filter(Boolean).join("")}</span>`;
 
 		textStack[0] += `<${this.wrapperTag} class="rd__b-special rd__b-inset" ${dataString}>`;
@@ -8160,8 +8165,15 @@ Renderer.item = class {
 
 		// armor
 		if (item.ac != null) {
+			const itemType = item.bardingType || item.type;
+			const dexterityMax = (itemType === "MA" && item.dexterityMax == null)
+				? 2
+				: item.dexterityMax;
+			const isAddDex = item.dexterityMax != null || itemType !== "HA";
+
 			const prefix = item.type === "S" ? "+" : "";
-			const suffix = (item.type === "LA" || item.bardingType === "LA") || ((item.type === "MA" || item.bardingType === "MA") && item.dexterityMax === null) ? " + Dex" : (item.type === "MA" || item.bardingType === "MA") ? ` + Dex (max ${item.dexterityMax ?? 2})` : "";
+			const suffix = isAddDex ? ` + Dex${dexterityMax ? ` (max ${dexterityMax})` : ""}` : "";
+
 			damageParts.push(`AC ${prefix}${item.ac}${suffix}`);
 		}
 		if (item.acSpecial != null) damageParts.push(item.ac != null ? item.acSpecial : `AC ${item.acSpecial}`);
@@ -9083,7 +9095,7 @@ Renderer.item = class {
 		}
 
 		// handle item groups
-		if (item._isItemGroup) {
+		if (item._isItemGroup && item.items?.length) {
 			Renderer.item._initFullEntries(item);
 			item._fullEntries.push({type: "wrapper", wrapped: "Multiple variations of this item exist, as listed below:", data: {[VeCt.ENTDATA_ITEM_MERGED_ENTRY_TAG]: "magicvariant"}});
 			item._fullEntries.push({
@@ -10570,12 +10582,22 @@ Renderer.recipe = class {
 };
 
 Renderer.card = class {
-	static getFullEntries (ent) {
+	static getFullEntries (ent, {backCredit = null} = {}) {
 		const entries = [...ent.entries || []];
 		if (ent.suit && (ent.valueName || ent.value)) {
 			const suitAndValue = `${((ent.valueName || "") || Parser.numberToText(ent.value)).toTitleCase()} of ${ent.suit.toTitleCase()}`;
 			if (suitAndValue.toLowerCase() !== ent.name.toLowerCase()) entries.unshift(`{@i ${suitAndValue}}`);
 		}
+
+		const ptCredits = [
+			ent.face?.credit ? `art credit: ${ent.face?.credit}` : null,
+			(backCredit || ent.back?.credit) ? `art credit (reverse): ${backCredit || ent.back?.credit}` : null,
+		]
+			.filter(Boolean)
+			.join(", ")
+			.uppercaseFirst();
+		if (ptCredits) entries.push(`{@note {@style ${ptCredits}|small}}`);
+
 		return entries;
 	}
 
