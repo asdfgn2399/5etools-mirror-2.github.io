@@ -402,6 +402,7 @@
 		},
 		{
 			"name": "Big Linda",
+			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 163,
@@ -905,7 +906,7 @@
 				{
 					"name": "Keen Sight",
 					"entries": [
-						"The Crimson Countess has advantage on Wisdom (Perception) checks that rely on sight."
+						"The Crimson Countess has advantage on Wisdom ({@skill Perception}) checks that rely on sight."
 					]
 				}
 			],
@@ -1020,7 +1021,7 @@
 				{
 					"name": "Misty Camouflage",
 					"entries": [
-						"A delerium dreg has advantage on Dexterity (Stealth) checks to hide in any area obscured by mist or fog."
+						"A delerium dreg has advantage on Dexterity ({@skill Stealth}) checks to hide in any area obscured by mist or fog."
 					]
 				}
 			],
@@ -1067,7 +1068,7 @@
 						},
 						{
 							"type": "entries",
-							"name": "Bile Spray (Recharge 5-6)",
+							"name": "Bile Spray {@recharge 5}",
 							"entries": [
 								"The bloated delerium dreg exhales a 15-foot cone of acid. Each creature in that area must succeed on a DC 11 Dexterity saving throw, taking 7 ({@dice 2d6}) acid damage on a failed save, or half as much damage on a successful one. Creatures who fail their saving throw by 5 or more gain one {@adventure level of contamination|DoDk|12}."
 							]
@@ -1107,7 +1108,7 @@
 						},
 						{
 							"type": "entries",
-							"name": "Psychic Shriek (Recharge 6)",
+							"name": "Psychic Shriek {@recharge 6}",
 							"entries": [
 								"Creatures within 20 feet of the cyclopean dreg must succeed on a DC 10 Wisdom saving throw or take 7 ({@dice 2d6}) psychic damage and be {@condition frightened} for 1 minute. The target can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success."
 							]
@@ -1127,7 +1128,7 @@
 						},
 						{
 							"type": "entries",
-							"name": "Teleport (Recharge 4\u20136)",
+							"name": "Teleport {@recharge 4}",
 							"entries": [
 								"The displaced dreg magically teleports, along with any equipment it is wearing or carrying, up to 60 feet to an unoccupied space it can see. Before or after teleporting, the dreg can make one melee attack. If this attack hits, it deals an extra 7 ({@dice 2d6}) psychic damage."
 							]
@@ -1554,6 +1555,7 @@
 		},
 		{
 			"name": "Eldrick Runeweaver",
+			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 215,
@@ -1710,7 +1712,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"Eldrick Runeweaver wears a robe of the archmagi, carries a staff of power, and wears a ring of spell storing. He carries {@dice 2d6} very rare spell scrolls and potions."
+						"Eldrick Runeweaver wears a {@item robe of the archmagi}, carries a {@item staff of power}, and wears a {@item ring of spell storing}. He carries {@dice 2d6} {@filter very rare spell scrolls and potions|items|type=potion;scroll|rarity=very rare}."
 					]
 				},
 				{
@@ -1919,6 +1921,7 @@
 		},
 		{
 			"name": "Eoghan Ghostweaver",
+			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 105,
@@ -2517,6 +2520,15 @@
 						"mode": "replaceTxt",
 						"replace": "giant",
 						"with": "grotesque gargant"
+					},
+					"action": {
+						"mode": "appendArr",
+						"items": {
+							"name": "Contaminating Beam",
+							"entries": [
+								"The grotesque gargant magically forces a creature it can see within 60 feet of it to make a {@dc 15} Constitution saving throw. The creature takes 27 ({@damage 6d8}) necrotic damage on a failed save and gains one {@adventure level of contamination|DoDk|12}."
+							]
+						}
 					}
 				}
 			},
@@ -2529,15 +2541,9 @@
 					]
 				},
 				{
-					"name": "Contaminating Beam",
-					"entries": [
-						"The grotesque gargant magically forces a creature it can see within 60 feet of it to make a {@dc 15} Constitution saving throw. The creature takes 27 ({@damage 6d8}) necrotic damage on a failed save and gains one {@adventure level of contamination|DoDk|12}."
-					]
-				},
-				{
 					"name": "Misty Camouflage",
 					"entries": [
-						"The grotesque gargant has advantage on Dexterity (Stealth) checks to hide in any area obscured by mist or fog."
+						"The grotesque gargant has advantage on Dexterity ({@skill Stealth}) checks to hide in any area obscured by mist or fog."
 					]
 				}
 			],
@@ -2606,7 +2612,7 @@
 					"entries": [
 						{
 							"type": "entries",
-							"name": "Hurl Foetid Flesh (Recharge 5\u20136)",
+							"name": "Hurl Foetid Flesh {@recharge 5}",
 							"entries": [
 								"The gutbuster rips off a chunk of its mutated flesh and hurls it towards a space it can see within 120 feet of it. Each creature within 10 feet of that point must succeed on a DC 14 Constitution saving throw, taking 28 ({@dice 8d6}) necrotic damage on a failed save, or half as much damage on a successful one."
 							]
@@ -2781,24 +2787,38 @@
 						"replace": "wight",
 						"with": "haze wight"
 					},
-					"action": {
-						"mode": "replaceArr",
-						"replace": "Life Drain",
-						"items": [
-							{
-								"name": "Contaminated Touch",
-								"entries": [
-									"{@atk mw} {@hit 4} to hit, reach 5 ft., one creature. {@h}10 ({@damage 3d6}) necrotic damage. The target must succeed on a {@dc 13} Constitution saving throw or gain one {@adventure level of contamination|DoDk|12}."
-								]
-							},
-							{
-								"name": "Create Haze Husk",
-								"entries": [
-									"The wight targets a humanoid within 10 feet of it that has been dead for no longer than 1 minute and died violently. It rises as a haze husk in an unoccupied space within 5 feet. The haze husk is under the wight's control. The wight can have no more than 12 haze husks under its control at one time."
-								]
-							}
-						]
-					}
+					"action": [
+						{
+							"mode": "replaceArr",
+							"replace": "Multiattack",
+							"items": [
+								{
+									"name": "Multiattack",
+									"entries": [
+										"The haze wight makes two longsword attacks or two longbow attacks. It can use its Contaminated Touch or Create Haze Husk in place of one longsword attack."
+									]
+								}
+							]
+						},
+						{
+							"mode": "replaceArr",
+							"replace": "Life Drain",
+							"items": [
+								{
+									"name": "Contaminated Touch",
+									"entries": [
+										"{@atk mw} {@hit 4} to hit, reach 5 ft., one creature. {@h}10 ({@damage 3d6}) necrotic damage. The target must succeed on a {@dc 13} Constitution saving throw or gain one {@adventure level of contamination|DoDk|12}."
+									]
+								},
+								{
+									"name": "Create Haze Husk",
+									"entries": [
+										"The wight targets a humanoid within 10 feet of it that has been dead for no longer than 1 minute and died violently. It rises as a haze husk in an unoccupied space within 5 feet. The haze husk is under the wight's control. The wight can have no more than 12 haze husks under its control at one time."
+									]
+								}
+							]
+						}
+					]
 				}
 			},
 			"tokenCredit": "Igor Krstic",
@@ -3131,7 +3151,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"Theodore Marshal wields a holy avenger longsword."
+						"Theodore Marshal wields a {@item holy avenger longsword}."
 					]
 				}
 			],
@@ -3202,51 +3222,22 @@
 		},
 		{
 			"name": "Lenore von Kessel",
+			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 134,
-			"size": [
-				"M"
-			],
-			"type": "monstrosity",
-			"alignment": [
-				"L",
-				"E"
-			],
-			"ac": [
-				{
-					"ac": 15,
-					"from": [
-						"natural armor"
-					]
+			"_copy": {
+				"name": "Medusa",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "the medusa",
+						"with": "Lenore",
+						"flags": "i"
+					}
 				}
-			],
-			"hp": {
-				"average": 127,
-				"formula": "17d8 + 51"
 			},
-			"speed": {
-				"walk": 30
-			},
-			"str": 10,
-			"dex": 15,
-			"con": 16,
-			"int": 12,
-			"wis": 13,
-			"cha": 15,
-			"skill": {
-				"deception": "+5",
-				"insight": "+4",
-				"perception": "+4",
-				"stealth": "+5"
-			},
-			"senses": [
-				"darkvision 60 ft."
-			],
-			"passive": 14,
-			"languages": [
-				"Common"
-			],
-			"cr": "6",
 			"trait": [
 				{
 					"name": "Radiant Gaze",
@@ -3259,56 +3250,11 @@
 			],
 			"action": [
 				{
-					"name": "Multiattack",
-					"entries": [
-						"The medusa makes either three melee attacks\u2014one with its snake hair and two with its shortsword\u2014or two ranged attacks with its longbow."
-					]
-				},
-				{
 					"name": "Tentacle Hair",
 					"entries": [
 						"{@atk mw} {@hit 5} to hit, reach 5 ft., one creature. {@h}4 ({@damage 1d4 + 2}) piercing damage plus 14 ({@damage 4d6}) necrotic damage. The target must succeed on a {@dc 14} Constitution saving throw or gain one {@adventure level of contamination|DoDk|12}."
 					]
-				},
-				{
-					"name": "Shortsword",
-					"entries": [
-						"{@atk mw} {@hit 5} to hit, reach 5 ft., one target. {@h}5 ({@damage 1d6 + 2}) piercing damage."
-					]
-				},
-				{
-					"name": "Longbow",
-					"entries": [
-						"{@atk rw} {@hit 5} to hit, range 150/600 ft., one target. {@h}6 ({@damage 1d8 + 2}) piercing damage plus 7 ({@damage 2d6}) poison damage."
-					]
 				}
-			],
-			"attachedItems": [
-				"longbow|phb",
-				"shortsword|phb"
-			],
-			"senseTags": [
-				"D"
-			],
-			"actionTags": [
-				"Multiattack"
-			],
-			"languageTags": [
-				"C"
-			],
-			"damageTags": [
-				"I",
-				"N",
-				"P",
-				"R"
-			],
-			"miscTags": [
-				"MLW",
-				"MW",
-				"RW"
-			],
-			"savingThrowForced": [
-				"constitution"
 			],
 			"hasToken": true,
 			"hasFluff": true,
@@ -3557,7 +3503,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"Elias Drexel wields a +3 Longsword, wears a +3 breastplate and the Lord Commander's Badge."
+						"Elias Drexel wields a {@item +3 Longsword}, wears a {@item +3 breastplate} and the {@item Lord Commander's Badge|DoDk}."
 					]
 				}
 			],
@@ -3722,7 +3668,7 @@
 				{
 					"name": "Predatory Senses",
 					"entries": [
-						"The Lord of the Feast has advantage on Wisdom (Perception) checks. He can pinpoint the position of any creature within 120 feet of him that is {@condition invisible}."
+						"The Lord of the Feast has advantage on Wisdom ({@skill Perception}) checks. He can pinpoint the position of any creature within 120 feet of him that is {@condition invisible}."
 					]
 				}
 			],
@@ -3820,6 +3766,7 @@
 		},
 		{
 			"name": "Lucretia Mathias",
+			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 216,
@@ -4085,6 +4032,7 @@
 		},
 		{
 			"name": "Minazorond",
+			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 183,
@@ -4282,7 +4230,7 @@
 				{
 					"name": "Detect",
 					"entries": [
-						"Minazorond makes a Wisdom (Perception) check."
+						"Minazorond makes a Wisdom ({@skill Perception}) check."
 					]
 				},
 				{
@@ -4348,6 +4296,7 @@
 		},
 		{
 			"name": "Oscar Yoren",
+			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 99,
@@ -4590,6 +4539,15 @@
 						"The Pale Man is a 16th-level spellcaster. Its spellcasting ability is Intelligence (spell save {@dc 18}, {@hit 10} to hit with spell attacks). The Pale Man has the following wizard spells prepared:"
 					],
 					"spells": {
+						"0": {
+							"spells": [
+								"{@spell chill touch}",
+								"{@spell mage hand}",
+								"{@spell mending}",
+								"{@spell prestidigitation}",
+								"{@spell shocking grasp}"
+							]
+						},
 						"1": {
 							"slots": 4,
 							"spells": [
@@ -4625,14 +4583,14 @@
 						"5": {
 							"slots": 3,
 							"spells": [
-								"{@spell conjure the deep haze|DoDk}*",
-								"{@spell siphon contamination|DoDk}*"
+								"{@spell conjure the deep haze|DoDk}*"
 							]
 						},
 						"6": {
 							"slots": 1,
 							"spells": [
-								"{@spell chain lightning}"
+								"{@spell chain lightning}",
+								"{@spell siphon contamination|DoDk}*"
 							]
 						},
 						"7": {
@@ -5036,7 +4994,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"The Queen of Thieves wears an amulet of proof against detection and location and a spymasters signet. She wields a +3 rapier."
+						"The Queen of Thieves wears an {@item amulet of proof against detection and location} and a {@item spymaster's signet|DoDK}. She wields a {@item +3 rapier}."
 					]
 				},
 				{
@@ -5215,7 +5173,7 @@
 				{
 					"name": "Keen Smell",
 					"entries": [
-						"The Rat Prince has advantage on Wisdom (Perception) checks that rely on smell."
+						"The Rat Prince has advantage on Wisdom ({@skill Perception}) checks that rely on smell."
 					]
 				},
 				{
@@ -5339,7 +5297,7 @@
 				{
 					"name": "Keen Smell",
 					"entries": [
-						"The ratling has advantage on Wisdom (Perception) checks that rely on smell."
+						"The ratling has advantage on Wisdom ({@skill Perception}) checks that rely on smell."
 					]
 				},
 				{
@@ -5399,6 +5357,7 @@
 		},
 		{
 			"name": "Saint Gresha",
+			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "DoDk",
 			"page": 124,
@@ -5511,7 +5470,7 @@
 				{
 					"name": "Sunlight Sensitivity",
 					"entries": [
-						"While in sunlight, Saint Gresha has disadvantage on attack rolls, as well as on Wisdom (Perception) checks that rely on sight."
+						"While in sunlight, Saint Gresha has disadvantage on attack rolls, as well as on Wisdom ({@skill Perception}) checks that rely on sight."
 					]
 				}
 			],
@@ -6209,7 +6168,7 @@
 				{
 					"name": "Keen Smell",
 					"entries": [
-						"The ratling has advantage on Wisdom (Perception) checks that rely on smell."
+						"The ratling has advantage on Wisdom ({@skill Perception}) checks that rely on smell."
 					]
 				}
 			],

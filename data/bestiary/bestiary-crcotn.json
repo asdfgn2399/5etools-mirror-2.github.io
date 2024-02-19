@@ -1275,7 +1275,7 @@
 				{
 					"name": "Keen Sight and Smell",
 					"entries": [
-						"The statue has advantage on Wisdom (Perception) checks that rely on sight or smell."
+						"The statue has advantage on Wisdom ({@skill Perception}) checks that rely on sight or smell."
 					]
 				},
 				{
@@ -1337,10 +1337,12 @@
 			"_copy": {
 				"name": "Occult Silvertongue",
 				"source": "CRCotN",
-				"_trait": {
-					"name": "Goliath",
-					"source": "VGM"
-				},
+				"_templates": [
+					{
+						"name": "Goliath",
+						"source": "VGM"
+					}
+				],
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -2606,7 +2608,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"Dermot wears mariner's armor and wields a ruidium warhammer (see appendix B). If Dermot rolls a 1 on an attack roll made with the warhammer, he must succeed on a {@dc 20} Charisma saving throw or gain 1 level of {@condition exhaustion}."
+						"Dermot wears {@item mariner's armor} and wields a ruidium warhammer (see appendix B). If Dermot rolls a 1 on an attack roll made with the warhammer, he must succeed on a {@dc 20} Charisma saving throw or gain 1 level of {@condition exhaustion}."
 					]
 				}
 			],
@@ -2704,10 +2706,12 @@
 			"_copy": {
 				"name": "Priest",
 				"source": "MM",
-				"_trait": {
-					"name": "Firbolg",
-					"source": "VGM"
-				},
+				"_templates": [
+					{
+						"name": "Firbolg",
+						"source": "VGM"
+					}
+				],
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -3259,7 +3263,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"Galsariad wears a ring of swimming and carries a ruidium dagger (see appendix B). If he rolls a 1 on an attack roll made with the dagger, he must succeed on a {@dc 20} Charisma saving throw or gain 1 level of {@condition exhaustion}."
+						"Galsariad wears a {@item ring of swimming} and carries a ruidium dagger (see appendix B). If he rolls a 1 on an attack roll made with the dagger, he must succeed on a {@dc 20} Charisma saving throw or gain 1 level of {@condition exhaustion}."
 					]
 				}
 			],
@@ -3357,10 +3361,12 @@
 			"_copy": {
 				"name": "Scholarly Mastermind",
 				"source": "CRCotN",
-				"_trait": {
-					"name": "Goblin",
-					"source": "DMG"
-				},
+				"_templates": [
+					{
+						"name": "Goblin",
+						"source": "DMG"
+					}
+				],
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -3448,7 +3454,7 @@
 					"name": "Spellcasting",
 					"type": "spellcasting",
 					"headerEntries": [
-						"Insight casts one of the following spells, requiring no material components and using Intelligence as the spellcasting ability (spell save {@dc 15}):"
+						"{@skill Insight} casts one of the following spells, requiring no material components and using Intelligence as the spellcasting ability (spell save {@dc 15}):"
 					],
 					"will": [
 						"{@spell alter self}",
@@ -3470,7 +3476,7 @@
 				{
 					"name": "Multiattack",
 					"entries": [
-						"Insight makes two Arcane Shock or Dagger of the Poisoned Mind attacks."
+						"{@skill Insight} makes two Arcane Shock or Dagger of the Poisoned Mind attacks."
 					]
 				},
 				{
@@ -3805,7 +3811,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"Irvan wears gloves of swimming and climbing and wields a ruidium shortsword (see appendix B). If Irvan rolls a 1 on an attack roll made with the shortsword, he must succeed on a {@dc 20} Charisma saving throw or gain 1 level of {@condition exhaustion}.",
+						"Irvan wears {@item gloves of swimming and climbing} and wields a ruidium shortsword (see appendix B). If Irvan rolls a 1 on an attack roll made with the shortsword, he must succeed on a {@dc 20} Charisma saving throw or gain 1 level of {@condition exhaustion}.",
 						"In addition, Irvan has a magical prosthetic arm. While the arm is attached to him, it functions the same as the body part it is replacing. Irvan can attach or detach the arm as an action, and it can't be removed by anyone else."
 					]
 				}
@@ -3943,10 +3949,12 @@
 			"_copy": {
 				"name": "Assassin",
 				"source": "MM",
-				"_trait": {
-					"name": "Tiefling",
-					"source": "PHB"
-				},
+				"_templates": [
+					{
+						"name": "Tiefling",
+						"source": "PHB"
+					}
+				],
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -4072,7 +4080,7 @@
 				{
 					"name": "Special Equipment",
 					"entries": [
-						"Laurin wields a staff of the adder and is attuned to it as though he were a cleric."
+						"Laurin wields a {@item staff of the adder} and is attuned to it as though he were a cleric."
 					]
 				}
 			],
@@ -5546,7 +5554,7 @@
 				{
 					"name": "Keen Hearing and Sight",
 					"entries": [
-						"The scout has advantage on Wisdom (Perception) checks that rely on hearing or sight."
+						"The scout has advantage on Wisdom ({@skill Perception}) checks that rely on hearing or sight."
 					]
 				}
 			],
@@ -5630,10 +5638,12 @@
 			"_copy": {
 				"name": "Scholarly Agent",
 				"source": "CRCotN",
-				"_trait": {
-					"name": "Tiefling",
-					"source": "PHB"
-				},
+				"_templates": [
+					{
+						"name": "Tiefling",
+						"source": "PHB"
+					}
+				],
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -6081,10 +6091,12 @@
 			"_copy": {
 				"name": "Scholarly Agent",
 				"source": "CRCotN",
-				"_trait": {
-					"name": "Kenku",
-					"source": "VGM"
-				},
+				"_templates": [
+					{
+						"name": "Kenku",
+						"source": "VGM"
+					}
+				],
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -6742,7 +6754,7 @@
 				{
 					"name": "Sunlight Sensitivity",
 					"entries": [
-						"While in sunlight, Verin has disadvantage on attack rolls, as well as on Wisdom (Perception) checks that rely on sight."
+						"While in sunlight, Verin has disadvantage on attack rolls, as well as on Wisdom ({@skill Perception}) checks that rely on sight."
 					]
 				}
 			],
@@ -6840,10 +6852,12 @@
 			"_copy": {
 				"name": "Scholarly Excavator",
 				"source": "CRCotN",
-				"_trait": {
-					"name": "Goliath",
-					"source": "VGM"
-				},
+				"_templates": [
+					{
+						"name": "Goliath",
+						"source": "VGM"
+					}
+				],
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
