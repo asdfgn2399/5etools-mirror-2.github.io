@@ -78,11 +78,16 @@ PropOrder._ObjectKey = class {
 		this.order = opts.order;
 	}
 
-	static getCopyKey ({fnGetModOrder}) {
+	static getCopyKey ({identKeys = null, fnGetModOrder}) {
 		return new this("_copy", {
 			order: [
-				"name",
-				"source",
+				...(
+					identKeys
+					|| [
+						"name",
+						"source",
+					]
+				),
 				"_templates",
 				new PropOrder._ObjectKey("_mod", {
 					fnGetOrder: fnGetModOrder,
@@ -112,6 +117,63 @@ PropOrder._ArrayKey = class {
 	}
 };
 
+PropOrder._META = [
+	"sources",
+
+	"dependencies",
+	"includes",
+	"internalCopies",
+
+	"otherSources",
+
+	"spellSchools",
+	"spellDistanceUnits",
+	"optionalFeatureTypes",
+	"psionicTypes",
+	"currencyConversions",
+	"fonts",
+
+	"status",
+	"unlisted",
+
+	"dateAdded",
+	"dateLastModified",
+	"_dateLastModifiedHash",
+];
+PropOrder._FOUNDRY_GENERIC = [
+	"name",
+	"source",
+
+	"type",
+	"system",
+	"effects",
+	"flags",
+	"img",
+
+	"_merge",
+];
+PropOrder._FOUNDRY_GENERIC_FEATURE = [
+	"name",
+	"source",
+
+	"isIgnored",
+
+	"type",
+	"system",
+	"actorDataMod",
+	"effects",
+	"ignoreSrdEffects",
+	"flags",
+	"img",
+
+	"entries",
+
+	new PropOrder._ObjectKey("entryData", {
+		fnGetOrder: () => PropOrder._ENTRY_DATA_OBJECT,
+	}),
+
+	"_merge",
+];
 PropOrder._MONSTER = [
 	"name",
 	"shortName",
@@ -335,6 +397,7 @@ PropOrder._FOUNDRY_MONSTER = [
 	"source",
 
 	"system",
+	"prototypeToken",
 	"effects",
 	"flags",
 	"img",
@@ -449,15 +512,6 @@ PropOrder._ROLL20_SPELL = [
 		],
 	}),
 	"shapedData",
-];
-PropOrder._FOUNDRY_SPELL = [
-	"name",
-	"source",
-
-	"system",
-	"effects",
-	"flags",
-	"img",
 ];
 PropOrder._SPELL__COPY_MOD = [
 	"*",
@@ -739,6 +793,21 @@ PropOrder._SUBCLASS__COPY_MOD = [
 	"_",
 	...PropOrder._SUBCLASS,
 ];
+PropOrder._FOUNDRY_SUBCLASS = [
+	"name",
+	"source",
+	"className",
+	"classSource",
+
+	"advancement",
+	"chooseSystem",
+	"isChooseSystemRenderEntries",
+	"isChooseFlagsRenderEntries",
+	"isIgnored",
+	"ignoreSrdEffects",
+	"actorDataMod",
+	"actorTokenMod",
+];
 PropOrder._ENTRY_DATA_OBJECT = [
 	"languageProficiencies",
 	"skillProficiencies",
@@ -924,6 +993,8 @@ PropOrder._CONDITION = [
 	"basicRules",
 	"otherSources",
 
+	"color",
+
 	"entries",
 
 	"hasFluff",
@@ -958,6 +1029,8 @@ PropOrder._STATUS = [
 	"page",
 	"srd",
 	"basicRules",
+
+	"color",
 
 	"entries",
 ];
@@ -1110,15 +1183,6 @@ PropOrder._FEAT__COPY_MOD = [
 	"_",
 	...PropOrder._FEAT,
 ];
-PropOrder._FOUNDRY_FEAT = [
-	"name",
-	"source",
-
-	"system",
-	"effects",
-	"flags",
-	"img",
-];
 PropOrder._VEHICLE = [
 	"name",
 
@@ -1158,7 +1222,9 @@ PropOrder._VEHICLE = [
 
 	"hp",
 
+	"resist",
 	"immune",
+	"vulnerable",
 	"conditionImmune",
 
 	"hull",
@@ -1319,6 +1385,7 @@ PropOrder._ITEM = [
 	"bonusSavingThrow",
 	"bonusAbilityCheck",
 	"bonusProficiencyBonus",
+	"bonusSavingThrowConcentration",
 	"modifySpeed",
 	"reach",
 	"critThreshold",
@@ -1679,10 +1746,25 @@ PropOrder._FOUNDRY_RACE_FEATURE = [
 	"raceName",
 	"raceSource",
 
+	PropOrder._ObjectKey.getCopyKey({
+		identKeys: [
+			"name",
+			"source",
+			"raceName",
+			"raceSource",
+		],
+		fnGetModOrder: () => PropOrder._FOUNDRY_RACE_FEATURE__COPY_MOD,
+	}),
+
 	"system",
 	"effects",
 	"flags",
 	"img",
+];
+PropOrder._FOUNDRY_RACE_FEATURE__COPY_MOD = [
+	"*",
+	"_",
+	...PropOrder._FOUNDRY_RACE_FEATURE,
 ];
 PropOrder._TABLE = [
 	"name",
@@ -1915,6 +1997,7 @@ PropOrder._CITATION = [
 ];
 
 PropOrder._PROP_TO_LIST = {
+	"_meta": PropOrder._META,
 	"monster": PropOrder._MONSTER,
 	"foundryMonster": PropOrder._FOUNDRY_MONSTER,
 	"monsterFluff": PropOrder._GENERIC_FLUFF,
@@ -1935,9 +2018,10 @@ PropOrder._PROP_TO_LIST = {
 	"hazardFluff": PropOrder._GENERIC_FLUFF,
 	"spell": PropOrder._SPELL,
 	"roll20Spell": PropOrder._ROLL20_SPELL,
-	"foundrySpell": PropOrder._FOUNDRY_SPELL,
+	"foundrySpell": PropOrder._FOUNDRY_GENERIC,
 	"spellList": PropOrder._SPELL_LIST,
 	"action": PropOrder._ACTION,
+	"foundryAction": PropOrder._FOUNDRY_GENERIC,
 	"adventure": PropOrder._ADVENTURE,
 	"adventureData": PropOrder._ADVENTURE_DATA,
 	"book": PropOrder._BOOK,
@@ -1947,6 +2031,7 @@ PropOrder._PROP_TO_LIST = {
 	"class": PropOrder._CLASS,
 	"foundryClass": PropOrder._FOUNDRY_CLASS,
 	"subclass": PropOrder._SUBCLASS,
+	"foundrySubclass": PropOrder._FOUNDRY_SUBCLASS,
 	"classFeature": PropOrder._CLASS_FEATURE,
 	"subclassFeature": PropOrder._SUBCLASS_FEATURE,
 	"foundryClassFeature": PropOrder._FOUNDRY_CLASS_FEATURE,
@@ -1961,21 +2046,28 @@ PropOrder._PROP_TO_LIST = {
 	"boon": PropOrder._BOON,
 	"deity": PropOrder._DEITY,
 	"feat": PropOrder._FEAT,
-	"foundryFeat": PropOrder._FOUNDRY_FEAT,
+	"foundryFeat": PropOrder._FOUNDRY_GENERIC_FEATURE,
 	"vehicle": PropOrder._VEHICLE,
 	"vehicleUpgrade": PropOrder._VEHICLE_UPGRADE,
+	"foundryVehicleUpgrade": PropOrder._FOUNDRY_GENERIC_FEATURE,
 	"item": PropOrder._ITEM,
+	"foundryItem": PropOrder._FOUNDRY_GENERIC,
 	"baseitem": PropOrder._ITEM,
 	"magicvariant": PropOrder._MAGICVARIANT,
+	"foundryMagicvariant": PropOrder._FOUNDRY_GENERIC,
 	"itemGroup": PropOrder._ITEM,
 	"itemMastery": PropOrder._ITEM_MASTERY,
 	"object": PropOrder._OBJECT,
 	"optionalfeature": PropOrder._OPTIONALFEATURE,
+	"foundryOptionalfeature": PropOrder._FOUNDRY_GENERIC_FEATURE,
 	"psionic": PropOrder._PSIONIC,
+	"foundryPsionic": PropOrder._FOUNDRY_GENERIC_FEATURE,
 	"reward": PropOrder._REWARD,
+	"foundryReward": PropOrder._FOUNDRY_GENERIC_FEATURE,
 	"variantrule": PropOrder._VARIANTRULE,
 	"spellFluff": PropOrder._GENERIC_FLUFF,
 	"race": PropOrder._RACE,
+	"foundryRace": PropOrder._FOUNDRY_GENERIC_FEATURE,
 	"subrace": PropOrder._SUBRACE,
 	"foundryRaceFeature": PropOrder._FOUNDRY_RACE_FEATURE,
 	"table": PropOrder._TABLE,

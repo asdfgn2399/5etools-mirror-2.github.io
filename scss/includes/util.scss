@@ -27,6 +27,16 @@ input[type="radio"]:checked {
 	font-size: 85% !important;
 }
 
+.ve-large {
+	font-size: 125% !important;
+
+	// Additional size bump for small-caps fonts, to visually match size of non-caps text
+	&.small-caps,
+	&.dnd-font {
+		font-size: 140% !important;
+	}
+}
+
 .font-size-24p {
 	font-size: 24px !important;
 }
@@ -57,8 +67,18 @@ i > i {
 	text-decoration: underline !important;
 }
 
+.ve-underline-double {
+	text-decoration: underline !important;
+	text-decoration-style: double !important;
+}
+
 .no-underline {
 	text-decoration: none !important;
+}
+
+.ve-strike-double {
+	text-decoration: line-through !important;
+	text-decoration-style: double !important;
 }
 
 .help {
@@ -188,43 +208,43 @@ i > i {
 	scrollbar-gutter: stable;
 }
 
-.overflow-auto {
+.ve-overflow-auto {
 	overflow: auto auto;
 }
 
-.overflow-y-auto {
+.ve-overflow-y-auto {
 	overflow-y: auto;
 }
 
-.overflow-y-scroll {
+.ve-overflow-y-scroll {
 	overflow-y: scroll;
 }
 
-.overflow-y-hidden {
+.ve-overflow-y-hidden {
 	overflow-y: hidden;
 }
 
-.overflow-x-auto {
+.ve-overflow-x-auto {
 	overflow-x: auto;
 }
 
-.overflow-x-scroll {
+.ve-overflow-x-scroll {
 	overflow-x: scroll;
 }
 
-.overflow-x-hidden {
+.ve-overflow-x-hidden {
 	overflow-x: hidden;
 }
 
-.overflow-hidden {
+.ve-overflow-hidden {
 	overflow: hidden;
 }
 
-.overflow-ellipsis {
+.ve-overflow-ellipsis {
 	@include vars.mix-overflow-dots;
 }
 
-.overflow-overlay {
+.ve-overflow-overlay {
 	overflow: auto;
 	overflow: overlay;
 }
@@ -736,7 +756,7 @@ i > i {
 		break-inside: avoid-column;
 	}
 
-	@media (width <= 768px) {
+	@media screen and (width <= #{vars.$width-screen-sm}) {
 		column-count: 1;
 	}
 }
@@ -750,11 +770,11 @@ i > i {
 		break-inside: avoid-column;
 	}
 
-	@media (width <= 768px) {
+	@media screen and (width <= #{vars.$width-screen-sm}) {
 		column-count: 2;
 	}
 
-	@media (width <= 480px) {
+	@media screen and (width <= #{vars.$width-screen-xs}) {
 		column-count: 1;
 	}
 }
@@ -768,11 +788,11 @@ i > i {
 		break-inside: avoid-column;
 	}
 
-	@media (width <= 768px) {
+	@media screen and (width <= #{vars.$width-screen-sm}) {
 		column-count: 3;
 	}
 
-	@media (width <= 480px) {
+	@media screen and (width <= #{vars.$width-screen-xs}) {
 		column-count: 2;
 	}
 }
@@ -786,11 +806,11 @@ i > i {
 		break-inside: avoid-column;
 	}
 
-	@media (width <= 768px) {
+	@media screen and (width <= #{vars.$width-screen-sm}) {
 		column-count: 3;
 	}
 
-	@media (width <= 480px) {
+	@media screen and (width <= #{vars.$width-screen-xs}) {
 		column-count: 2;
 	}
 }
@@ -804,11 +824,11 @@ i > i {
 		break-inside: avoid-column;
 	}
 
-	@media (width <= 768px) {
+	@media screen and (width <= #{vars.$width-screen-sm}) {
 		column-count: 3;
 	}
 
-	@media (width <= 480px) {
+	@media screen and (width <= #{vars.$width-screen-xs}) {
 		column-count: 2;
 	}
 }

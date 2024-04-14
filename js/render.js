@@ -260,6 +260,33 @@ globalThis.Renderer = function () {
 
 	this._getPlugins = function (pluginType) { return this._plugins[pluginType] ||= []; };
 
+	this._applyPlugins_useFirst = function (pluginType, commonArgs, pluginArgs) {
+		for (const plugin of this._getPlugins(pluginType)) {
+			const out = plugin(commonArgs, pluginArgs);
+			if (out) return out;
+		}
+	};
+
+	this._applyPlugins_useAll = function (pluginType, commonArgs, pluginArgs) {
+		const plugins = this._getPlugins(pluginType);
+		if (!plugins?.length) return null;
+
+		let input = pluginArgs.input;
+		for (const plugin of plugins) {
+			input = plugin(commonArgs, pluginArgs) ?? input;
+		}
+		return input;
+	};
+
+	this._applyPlugins_getAll = function (pluginType, commonArgs, pluginArgs) {
+		const plugins = this._getPlugins(pluginType);
+		if (!plugins?.length) return [];
+
+		return plugins
+			.map(plugin => plugin(commonArgs, pluginArgs))
+			.filter(Boolean);
+	};
+
 	/** Run a function with the given plugin active. */
 	this.withPlugin = function ({pluginTypes, fnPlugin, fn}) {
 		for (const pt of pluginTypes) this.addPlugin(pt, fnPlugin);
@@ -485,7 +512,7 @@ globalThis.Renderer = function () {
 			: null;
 		const ptTitleCreditTooltip = this._renderImage_getTitleCreditTooltipText(entry);
 		const ptTitle = ptTitleCreditTooltip ? `title="${ptTitleCreditTooltip}"` : "";
-		const pluginDataIsNoLink = this._getPlugins("image_isNoLink").map(plugin => plugin(entry, textStack, meta, options)).some(Boolean);
+		const pluginDataIsNoLink = this._applyPlugins_useFirst("image_isNoLink", {textStack, meta, options}, {input: entry});
 
 		textStack[0] += `<div class="${this._renderImage_getWrapperClasses(entry, meta)}" ${entry.title && this._isHeaderIndexIncludeImageTitles ? `data-title-index="${this._headerIndex++}"` : ""}>
 			${pluginDataIsNoLink ? "" : `<a href="${href}" target="_blank" rel="noopener noreferrer" ${ptTitle}>`}
@@ -585,17 +612,13 @@ globalThis.Renderer = function () {
 
 	this._renderImage_getUrl = function (entry) {
 		let url = Renderer.utils.getEntryMediaUrl(entry, "href", "img");
-		for (const plugin of this._getPlugins(`image_urlPostProcess`)) {
-			url = plugin(entry, url) || url;
-		}
+		url = this._applyPlugins_useAll("image_urlPostProcess", null, {input: url}) ?? url;
 		return url;
 	};
 
 	this._renderImage_getUrlThumbnail = function (entry) {
 		let url = Renderer.utils.getEntryMediaUrl(entry, "hrefThumbnail", "img");
-		for (const plugin of this._getPlugins(`image_urlThumbnailPostProcess`)) {
-			url = plugin(entry, url) || url;
-		}
+		url = this._applyPlugins_useAll("image_urlThumbnailPostProcess", null, {input: url}) ?? url;
 		return url;
 	};
 
@@ -805,7 +828,7 @@ globalThis.Renderer = function () {
 		const cachedLastDepthTrackerProps = MiscUtil.copyFast(this._lastDepthTrackerInheritedProps);
 		this._handleTrackDepth(entry, meta.depth);
 
-		const pluginDataNamePrefix = this._getPlugins(`${type}_namePrefix`).map(plugin => plugin(entry, textStack, meta, options)).filter(Boolean);
+		const pluginDataNamePrefix = this._applyPlugins_getAll(`${type}_namePrefix`, {textStack, meta, options}, {input: entry});
 
 		const headerSpan = entry.name ? `<${headerTag} class="rd__h ${headerClass}" data-title-index="${this._headerIndex++}" ${this._getEnumeratedTitleRel(entry.name)}> <span class="entry-title-inner${!pagePart && entry.source ? ` help-subtle` : ""}"${!pagePart && entry.source ? ` title="Source: ${Parser.sourceJsonToFull(entry.source)}${entry.page ? `, p${entry.page}` : ""}"` : ""}>${pluginDataNamePrefix.join("")}${this.render({type: "inline", entries: [entry.name]})}${isAddPeriod ? "." : ""}</span>${partPageExpandCollapse}</${headerTag}> ` : "";
 
@@ -1226,7 +1249,7 @@ globalThis.Renderer = function () {
 	};
 
 	this._renderDice = function (entry, textStack, meta, options) {
-		const pluginResults = this._getPlugins("dice").map(plugin => plugin(entry, textStack, meta, options)).filter(Boolean);
+		const pluginResults = this._applyPlugins_getAll("dice", {textStack, meta, options}, {input: entry});
 
 		textStack[0] += Renderer.getEntryDice(entry, entry.name, {isAddHandlers: this._isAddHandlers, pluginResults});
 	};
@@ -1526,8 +1549,7 @@ globalThis.Renderer = function () {
 	this._getStyleClass = function (entryType, entry) {
 		const outList = [];
 
-		const pluginResults = this._getPlugins(`${entryType}_styleClass_fromSource`)
-			.map(plugin => plugin(entryType, entry)).filter(Boolean);
+		const pluginResults = this._applyPlugins_getAll(`${entryType}_styleClass_fromSource`, null, {input: {entryType, entry}});
 
 		if (!pluginResults.some(it => it.isSkip)) {
 			if (
@@ -1547,7 +1569,9 @@ globalThis.Renderer = function () {
 	};
 
 	this._renderString = function (entry, textStack, meta, options) {
-		const tagSplit = Renderer.splitByTags(entry);
+		const str = this._applyPlugins_useAll("string_preprocess", {textStack, meta, options}, {input: entry}) ?? entry;
+
+		const tagSplit = Renderer.splitByTags(str);
 		const len = tagSplit.length;
 		for (let i = 0; i < len; ++i) {
 			const s = tagSplit[i];
@@ -1564,29 +1588,21 @@ globalThis.Renderer = function () {
 	};
 
 	this._renderString_renderBasic = function (textStack, meta, options, str) {
-		// region Plugins
-		for (const plugin of this._getPlugins("string_basic")) {
-			const out = plugin(str, textStack, meta, options);
-			if (out) return void (textStack[0] += out);
-		}
-		// endregion
+		const fromPlugins = this._applyPlugins_useFirst("string_basic", {textStack, meta, options}, {input: str});
+		if (fromPlugins) return void (textStack[0] += fromPlugins);
 
 		textStack[0] += str;
 	};
 
 	this._renderString_renderTag = function (textStack, meta, options, tag, text) {
 		// region Plugins
-		// Generic
-		for (const plugin of this._getPlugins("string_tag")) {
-			const out = plugin(tag, text, textStack, meta, options);
-			if (out) return void (textStack[0] += out);
-		}
-
 		// Tag-specific
-		for (const plugin of this._getPlugins(`string_${tag}`)) {
-			const out = plugin(tag, text, textStack, meta, options);
-			if (out) return void (textStack[0] += out);
-		}
+		const fromPluginsSpecific = this._applyPlugins_useFirst(`string_${tag}`, {textStack, meta, options}, {input: {tag, text}});
+		if (fromPluginsSpecific) return void (textStack[0] += fromPluginsSpecific);
+
+		// Generic
+		const fromPluginsGeneric = this._applyPlugins_useFirst("string_tag", {textStack, meta, options}, {input: {tag, text}});
+		if (fromPluginsGeneric) return void (textStack[0] += fromPluginsGeneric);
 		// endregion
 
 		switch (tag) {
@@ -1609,9 +1625,21 @@ globalThis.Renderer = function () {
 				this._recursiveRender(text, textStack, meta);
 				textStack[0] += `</s>`;
 				break;
+			case "@s2":
+			case "@strikeDouble":
+				textStack[0] += `<s class="ve-strike-double">`;
+				this._recursiveRender(text, textStack, meta);
+				textStack[0] += `</s>`;
+				break;
 			case "@u":
 			case "@underline":
 				textStack[0] += `<u>`;
+				this._recursiveRender(text, textStack, meta);
+				textStack[0] += `</u>`;
+				break;
+			case "@u2":
+			case "@underlineDouble":
+				textStack[0] += `<u class="ve-underline-double">`;
 				this._recursiveRender(text, textStack, meta);
 				textStack[0] += `</u>`;
 				break;
@@ -2014,7 +2042,7 @@ globalThis.Renderer = function () {
 			}
 		}
 
-		const pluginData = this._getPlugins("link").map(plugin => plugin(entry, textStack, meta, options)).filter(Boolean);
+		const pluginData = this._applyPlugins_getAll("link", {textStack, meta, options}, {input: entry});
 		const isDisableEvents = pluginData.some(it => it.isDisableEvents);
 		const additionalAttributes = pluginData.map(it => it.attributes).filter(Boolean);
 
@@ -2028,20 +2056,23 @@ globalThis.Renderer = function () {
 	};
 
 	this._renderLink_getHref = function (entry) {
-		let href;
 		if (entry.href.type === "internal") {
 			// baseURL is blank by default
-			href = `${this.baseUrl}${entry.href.path}#`;
+			const ptBase = `${this.baseUrl}${entry.href.path}`;
+			let ptHash = "";
 			if (entry.href.hash != null) {
-				href += entry.href.hashPreEncoded ? entry.href.hash : UrlUtil.encodeForHash(entry.href.hash);
+				ptHash += entry.href.hashPreEncoded ? entry.href.hash : UrlUtil.encodeForHash(entry.href.hash);
 			}
 			if (entry.href.subhashes != null) {
-				href += Renderer.utils.getLinkSubhashString(entry.href.subhashes);
+				ptHash += Renderer.utils.getLinkSubhashString(entry.href.subhashes);
 			}
-		} else if (entry.href.type === "external") {
-			href = entry.href.url;
+			if (!ptHash) return ptBase;
+			return `${ptBase}#${ptHash}`;
 		}
-		return href;
+		if (entry.href.type === "external") {
+			return entry.href.url;
+		}
+		return "";
 	};
 
 	this._renderLink_getHoverString = function (entry) {
@@ -2063,9 +2094,7 @@ globalThis.Renderer = function () {
 			procHash += Renderer.utils.getLinkSubhashString(entry.href.hover.subhashes);
 		}
 
-		const pluginData = this._getPlugins("link_attributesHover")
-			.map(plugin => plugin(entry, procHash))
-			.filter(Boolean);
+		const pluginData = this._applyPlugins_getAll("link_attributesHover", null, {input: {entry, procHash}});
 		const replacementAttributes = pluginData.map(it => it.attributesHoverReplace).filter(Boolean);
 		if (replacementAttributes.length) return replacementAttributes.join(" ");
 
@@ -2127,6 +2156,7 @@ Renderer._INLINE_HEADER_TERMINATORS = new Set([".", ",", "!", "?", ";", ":", `"`
 Renderer._STYLE_TAG_ID_TO_STYLE = {
 	"small-caps": "small-caps",
 	"small": "ve-small",
+	"large": "ve-large",
 	"capitalize": "capitalize",
 	"dnd-font": "dnd-font",
 };
@@ -4320,12 +4350,28 @@ Renderer.tag = class {
 		tagName = "strike";
 	};
 
+	static TagStrikethroughDoubleShort = class extends this._TagTextStyle {
+		tagName = "s2";
+	};
+
+	static TagStrikethroughDoubleLong = class extends this._TagTextStyle {
+		tagName = "strikeDouble";
+	};
+
 	static TagUnderlineShort = class extends this._TagTextStyle {
 		tagName = "u";
 	};
 
 	static TagUnderlineLong = class extends this._TagTextStyle {
 		tagName = "underline";
+	};
+
+	static TagUnderlineDoubleShort = class extends this._TagTextStyle {
+		tagName = "u2";
+	};
+
+	static TagUnderlineDoubleLong = class extends this._TagTextStyle {
+		tagName = "underlineDouble";
 	};
 
 	static TagSup = class extends this._TagTextStyle {
@@ -4899,8 +4945,12 @@ Renderer.tag = class {
 		new this.TagItalicLong(),
 		new this.TagStrikethroughShort(),
 		new this.TagStrikethroughLong(),
+		new this.TagStrikethroughDoubleShort(),
+		new this.TagStrikethroughDoubleLong(),
 		new this.TagUnderlineShort(),
 		new this.TagUnderlineLong(),
+		new this.TagUnderlineDoubleShort(),
+		new this.TagUnderlineDoubleLong(),
 		new this.TagSup(),
 		new this.TagSub(),
 		new this.TagKbd(),
@@ -9605,6 +9655,12 @@ Renderer.vehicle = class {
 
 	static getVehicleRenderableEntriesMeta (ent) {
 		return {
+			entryDamageVulnerabilities: ent.vulnerable
+				? `{@b Damage Vulnerabilities} ${Parser.getFullImmRes(ent.vulnerable)}`
+				: null,
+			entryDamageResistances: ent.resist
+				? `{@b Damage Resistances} ${Parser.getFullImmRes(ent.resist)}`
+				: null,
 			entryDamageImmunities: ent.immune
 				? `{@b Damage Immunities} ${Parser.getFullImmRes(ent.immune)}`
 				: null,
@@ -9940,6 +9996,8 @@ Renderer.vehicle = class {
 		entriesMeta ||= Renderer.vehicle.getVehicleRenderableEntriesMeta(ent);
 
 		const props = [
+			"entryDamageVulnerabilities",
+			"entryDamageResistances",
 			"entryDamageImmunities",
 			"entryConditionImmunities",
 		];
@@ -10390,7 +10448,7 @@ Renderer.recipe = class {
 				${entriesMeta.entryCooksNotes ? `<div class="w-100 ve-flex-col mt-4"><div class="ve-flex-vh-center bold mb-1 small-caps">Cook's Notes</div><div class="italic">${Renderer.get().render(entriesMeta.entryCooksNotes)}</div></div>` : ""}
 			</div>
 
-			<div class="pl-2 ve-flex-2 rd-recipes__wrp-instructions overflow-x-auto">
+			<div class="pl-2 ve-flex-2 rd-recipes__wrp-instructions ve-overflow-x-auto">
 				${Renderer.get().setFirstSection(true).render(entriesMeta.entryInstructions, 2)}
 			</div>
 		</div>`;
@@ -11017,10 +11075,10 @@ Renderer.generic = class {
 
 	static getTokenUrl (ent, mediaDir, {isIgnoreImplicit = false} = {}) {
 		if (ent.tokenUrl) return ent.tokenUrl; // TODO(Future) legacy; remove
-		if (ent.token) return Renderer.get().getMediaUrl("img", `${mediaDir}/${Parser.sourceJsonToAbv(ent.token.source)}/${Parser.nameToTokenName(ent.token.name)}.webp`);
+		if (ent.token) return Renderer.get().getMediaUrl("img", `${mediaDir}/${ent.token.source}/${Parser.nameToTokenName(ent.token.name)}.webp`);
 		if (ent.tokenHref) return Renderer.utils.getEntryMediaUrl(ent, "tokenHref", "img");
 		if (isIgnoreImplicit) return null;
-		return Renderer.get().getMediaUrl("img", `${mediaDir}/${Parser.sourceJsonToAbv(ent.source)}/${Parser.nameToTokenName(ent.name)}.webp`);
+		return Renderer.get().getMediaUrl("img", `${mediaDir}/${ent.source}/${Parser.nameToTokenName(ent.name)}.webp`);
 	}
 };
 
@@ -11599,7 +11657,7 @@ Renderer.hover = class {
 			});
 		const $wrpContent = $(`<div class="hwin__wrp-table"></div>`);
 		if (opts.height != null) $wrpContent.css("height", opts.height);
-		const $hovTitle = $(`<span class="window-title min-w-0 overflow-ellipsis" title="${`${opts.title || ""}`.qq()}">${opts.title || ""}</span>`);
+		const $hovTitle = $(`<span class="window-title min-w-0 ve-overflow-ellipsis" title="${`${opts.title || ""}`.qq()}">${opts.title || ""}</span>`);
 
 		const hoverWindow = {};
 		const hoverId = Renderer.hover._getNextId();

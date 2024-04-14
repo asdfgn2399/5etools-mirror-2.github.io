@@ -1,15 +1,6 @@
 "use strict";
 
 class SpellsSublistManager extends SublistManager {
-	constructor () {
-		super({
-			sublistClass: "subspells",
-			sublistListOptions: {
-				fnSort: PageFilterSpells.sortSpells,
-			},
-		});
-	}
-
 	static get _ROW_TEMPLATE () {
 		return [
 			new SublistCellTemplate({
@@ -223,7 +214,6 @@ class SpellsPage extends ListPageMultiSource {
 		super({
 			pageFilter: new PageFilterSpells(),
 
-			listClass: "spells",
 			listOptions: {
 				fnSort: PageFilterSpells.sortSpells,
 			},
@@ -241,6 +231,7 @@ class SpellsPage extends ListPageMultiSource {
 				colTransforms: {
 					name: UtilsTableview.COL_TRANSFORM_NAME,
 					source: UtilsTableview.COL_TRANSFORM_SOURCE,
+					page: UtilsTableview.COL_TRANSFORM_PAGE,
 					level: {name: "Level", transform: (it) => Parser.spLevelToFull(it)},
 					time: {name: "Casting Time", transform: (it) => PageFilterSpells.getTblTimeStr(it[0])},
 					duration: {name: "Duration", transform: (it) => Parser.spDurationToFull(it)},

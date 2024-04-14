@@ -1,12 +1,6 @@
 "use strict";
 
 class PsionicsSublistManager extends SublistManager {
-	constructor () {
-		super({
-			sublistClass: "subpsionics",
-		});
-	}
-
 	static get _ROW_TEMPLATE () {
 		return [
 			new SublistCellTemplate({
@@ -65,10 +59,6 @@ class PsionicsPage extends ListPage {
 
 			pageFilter,
 
-			listClass: "psionics",
-
-			sublistClass: "subpsionics",
-
 			dataProps: ["psionic"],
 
 			isMarkdownPopout: true,
@@ -84,6 +74,7 @@ class PsionicsPage extends ListPage {
 				colTransforms: {
 					name: UtilsTableview.COL_TRANSFORM_NAME,
 					source: UtilsTableview.COL_TRANSFORM_SOURCE,
+					page: UtilsTableview.COL_TRANSFORM_PAGE,
 					_text: {name: "Text", transform: (it) => Renderer.psionic.getBodyText(it), flex: 3},
 				},
 			},

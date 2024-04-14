@@ -692,6 +692,12 @@ class RendererMarkdown {
 				this._recursiveRender(text, textStack, meta);
 				textStack[0] += `~~`;
 				break;
+			case "@s2":
+			case "@strikeDouble":
+				textStack[0] += `~~`;
+				this._recursiveRender(text, textStack, meta);
+				textStack[0] += `~~`;
+				break;
 			case "@note":
 				textStack[0] += "*";
 				this._recursiveRender(text, textStack, meta);
@@ -1689,6 +1695,8 @@ RendererMarkdown.vehicle = class {
 			renderer.render(entriesMetaShip.entrySizeDimensions),
 			RendererMarkdown.vehicle.ship.getCrewCargoPaceSection_(ent, {entriesMetaShip}),
 			RendererMarkdown.utils.compact.getRenderedAbilityScores(ent),
+			entriesMeta.entryDamageVulnerabilities ? renderer.render(entriesMeta.entryDamageVulnerabilities) : null,
+			entriesMeta.entryDamageResistances ? renderer.render(entriesMeta.entryDamageResistances) : null,
 			entriesMeta.entryDamageImmunities ? renderer.render(entriesMeta.entryDamageImmunities) : null,
 			entriesMeta.entryConditionImmunities ? renderer.render(entriesMeta.entryConditionImmunities) : null,
 			ent.action ? "### Actions" : null,
@@ -1770,6 +1778,8 @@ RendererMarkdown.vehicle = class {
 				.map(prop => renderer.render(entriesMetaInfwar[prop])),
 			renderer.render(entriesMetaInfwar.entrySpeedNote),
 			RendererMarkdown.utils.compact.getRenderedAbilityScores(ent),
+			entriesMeta.entryDamageVulnerabilities ? renderer.render(entriesMeta.entryDamageVulnerabilities) : null,
+			entriesMeta.entryDamageResistances ? renderer.render(entriesMeta.entryDamageResistances) : null,
 			entriesMeta.entryDamageImmunities ? renderer.render(entriesMeta.entryDamageImmunities) : null,
 			entriesMeta.entryConditionImmunities ? renderer.render(entriesMeta.entryConditionImmunities) : null,
 			...this._getLinesRendered_traits({ent, renderer}),
