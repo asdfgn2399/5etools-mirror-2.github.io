@@ -260,7 +260,7 @@ class NavBar {
 					NavBar._closeAllDropdowns();
 				},
 			},
-		);
+		);F
 		this._addElement_divider(NavBar._CAT_SETTINGS);
 		this._addElement_dropdown(NavBar._CAT_SETTINGS, NavBar._CAT_ACCOUNT, {isSide: true});
 		this._addElement_label(NavBar._CAT_ACCOUNT, `<p>WARNING: Account System is under development. Expect bugs. <b>Keep a backup of your saved state.</b></p><p>Contact asdfgn2399 on discord for support.</p>`);
@@ -285,7 +285,7 @@ class NavBar {
 							document.getElementById("signInButton").innerHTML = 'Sign In';
 							document.getElementById("signInButton").title = 'Sign in to your account';
 							localStorage.userUID = 'loggedOut';
-							document.getElementById('navigation').click();
+							NavBar._closeAllDropdowns();
 							if (data != "") {
 								JqueryUtil.doToast({
 									content: `Successfully signed out '${data.email}'`,
@@ -768,7 +768,7 @@ class NavBar {
 
 		if (options.context) eleSpan.oncontextmenu = options.context;
 
-		if (options.id && !document.getElementById(options.id)) a.id = options.id;
+		if (options.id && !document.getElementById(options.id)) eleSpan.setAttribute("id", options.id);
 
 		if (options.title) li.setAttribute("title", options.title);
 
