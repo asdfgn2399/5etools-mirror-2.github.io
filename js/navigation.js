@@ -260,7 +260,7 @@ class NavBar {
 					NavBar._closeAllDropdowns();
 				},
 			},
-		);F
+		);
 		this._addElement_divider(NavBar._CAT_SETTINGS);
 		this._addElement_dropdown(NavBar._CAT_SETTINGS, NavBar._CAT_ACCOUNT, {isSide: true});
 		this._addElement_label(NavBar._CAT_ACCOUNT, `<p>WARNING: Account System is under development. Expect bugs. <b>Keep a backup of your saved state.</b></p><p>Contact asdfgn2399 on discord for support.</p>`);
